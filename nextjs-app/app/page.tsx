@@ -12,6 +12,7 @@ export default function Home() {
   const [sourceLang, setSourceLang] = useState<Language>('auto');
   const [targetLang, setTargetLang] = useState<Language>('vi');
   const [sourceText, setSourceText] = useState('');
+  const [showCopyToast, setShowCopyToast] = useState(false);
   const debouncedText = useDebounce(sourceText, 500); // 0.5 second delay
 
   const handleSourceLanguageChange = (lang: Language) => {
@@ -73,9 +74,11 @@ export default function Home() {
     setTranslation(sourceText);
   };
 
-  const handleCopyTranslation = () => {
+  const handleCopyTranslation = async () => {
     if (translation) {
-      navigator.clipboard.writeText(translation);
+      await navigator.clipboard.writeText(translation);
+      setShowCopyToast(true);
+      setTimeout(() => setShowCopyToast(false), 2000);
     }
   };
 
@@ -182,6 +185,15 @@ export default function Home() {
         </div>
 
         {error && <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg text-center">{error}</div>}
+
+        {/* Copy Toast Notification */}
+        <div
+          className={`fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out ${
+            showCopyToast ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          }`}
+        >
+          Translation copied to clipboard
+        </div>
       </div>
     </main>
   );
