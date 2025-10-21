@@ -1,4 +1,5 @@
 import { Language } from './validators';
+import { API_CONFIG } from './constants';
 
 interface TranslateResponse {
   translatedText: string;

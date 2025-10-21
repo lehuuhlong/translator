@@ -1,6 +1,7 @@
 'use client';
 
 import { Language, LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '../lib/validators';
+import { memo, useMemo } from 'react';
 
 interface LanguageSelectorProps {
   value: Language;
@@ -10,9 +11,9 @@ interface LanguageSelectorProps {
   id: string;
 }
 
-export function LanguageSelector({ value, onChange, disabled, label, id }: LanguageSelectorProps) {
+export const LanguageSelector = memo(function LanguageSelector({ value, onChange, disabled, label, id }: LanguageSelectorProps) {
   const isSource = id.includes('source');
-  const languageList = isSource ? SUPPORTED_LANGUAGES : SUPPORTED_LANGUAGES.filter((lang) => lang !== 'auto');
+  const languageList = useMemo(() => (isSource ? SUPPORTED_LANGUAGES : SUPPORTED_LANGUAGES.filter((lang) => lang !== 'auto')), [isSource]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -39,4 +40,4 @@ export function LanguageSelector({ value, onChange, disabled, label, id }: Langu
       </div>
     </div>
   );
-}
+});

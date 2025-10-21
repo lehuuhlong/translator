@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, memo, useCallback } from 'react';
+import { APP_CONFIG } from '../lib/constants';
 
 interface TextAreaProps {
   value: string;
@@ -10,10 +11,20 @@ interface TextAreaProps {
   id: string;
 }
 
-export function TextArea({ value, onChange, readOnly, placeholder, id }: TextAreaProps) {
+const TextAreaComponent = ({ value, onChange, readOnly, placeholder, id }: TextAreaProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const charCount = value.length;
   const showCount = !readOnly;
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newValue = e.target.value;
+      if (newValue.length <= APP_CONFIG.MAX_TEXT_LENGTH) {
+        onChange(newValue);
+      }
+    },
+    [onChange]
+  );
 
   useEffect(() => {
     const textarea = textAreaRef.current;
@@ -32,18 +43,23 @@ export function TextArea({ value, onChange, readOnly, placeholder, id }: TextAre
           ref={textAreaRef}
           id={id}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={handleChange}
           readOnly={readOnly}
           placeholder={placeholder}
-          maxLength={5000}
+          maxLength={APP_CONFIG.MAX_TEXT_LENGTH}
           className="w-full min-h-[200px] px-4 pr-16 py-4 resize-none overflow-hidden bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white text-lg placeholder:text-gray-400 dark:placeholder:text-gray-600"
+          aria-label={placeholder}
         />
         {showCount && (
           <div className="absolute bottom-4 right-4">
-            <span className="text-sm text-gray-400">{charCount} / 5000</span>
+            <span className="text-sm text-gray-400" aria-live="polite">
+              {charCount} / {APP_CONFIG.MAX_TEXT_LENGTH}
+            </span>
           </div>
         )}
       </div>
     </div>
   );
-}
+};
+
+export const TextArea = memo(TextAreaComponent);
