@@ -32,7 +32,7 @@ const TextAreaComponent = ({ value, onChange, readOnly, placeholder, id }: TextA
       // Reset height to auto to get the correct scrollHeight
       textarea.style.height = 'auto';
       // Set new height based on scrollHeight
-      textarea.style.height = `${Math.max(textarea.scrollHeight, 200)}px`;
+      textarea.style.height = `${Math.max(textarea.scrollHeight, 160)}px`;
     }
   }, [value]);
 
@@ -47,7 +47,7 @@ const TextAreaComponent = ({ value, onChange, readOnly, placeholder, id }: TextA
           readOnly={readOnly}
           placeholder={placeholder}
           maxLength={APP_CONFIG.MAX_TEXT_LENGTH}
-          className="w-full min-h-[200px] px-4 pr-16 py-4 resize-none overflow-hidden bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white text-lg placeholder:text-gray-400 dark:placeholder:text-gray-600"
+          className="w-full min-h-[160px] px-4 pr-16 py-4 resize-none overflow-hidden bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white text-lg placeholder:text-gray-400 dark:placeholder:text-gray-600"
           aria-label={placeholder}
         />
         {showCount && (
