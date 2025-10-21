@@ -1,11 +1,11 @@
-export const SUPPORTED_LANGUAGES = ['auto', 'vi', 'en', 'ja'] as const;
+export const SUPPORTED_LANGUAGES = ['auto', 'ja', 'en', 'vi'] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 export const LANGUAGE_NAMES: Record<Language, string> = {
-  auto: 'Phát hiện ngôn ngữ',
-  vi: 'Tiếng Việt',
-  en: 'Tiếng Anh',
-  ja: 'Tiếng Nhật',
+  auto: 'Detect language',
+  ja: 'Japanese',
+  en: 'English',
+  vi: 'Vietnamese',
 };
 
 export function isValidLanguage(lang: string): lang is Language {
