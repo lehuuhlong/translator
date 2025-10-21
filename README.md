@@ -5,8 +5,8 @@ A modern web-based translation application built with Next.js and Express, featu
 ```
 +----------------+     +------------------+     +----------------------+
 |                |     |                  |     |                      |
-|   Next.js UI   | --> |  Express Server  | --> |   Azure Translator  |
-|  (TypeScript)  |     |   (TypeScript)   |     |        API         |
+|   Next.js UI   | --> |  Express Server  | --> |   Azure Translator   |
+|  (TypeScript)  |     |   (TypeScript)   |     |        API           |
 |                |     |                  |     |                      |
 +----------------+     +------------------+     +----------------------+
                              |
