@@ -3,6 +3,10 @@ import { Language } from './validators';
 interface TranslateResponse {
   translatedText: string;
   cached: boolean;
+  detectedLanguage?: {
+    language: Language;
+    confidence: number;
+  };
 }
 
 interface TranslateError {

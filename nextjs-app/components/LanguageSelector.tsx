@@ -11,24 +11,32 @@ interface LanguageSelectorProps {
 }
 
 export function LanguageSelector({ value, onChange, disabled, label, id }: LanguageSelectorProps) {
+  const isSource = id.includes('source');
+  const languageList = isSource ? SUPPORTED_LANGUAGES : SUPPORTED_LANGUAGES.filter((lang) => lang !== 'auto');
+
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="font-medium">
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value as Language)}
-        disabled={disabled}
-        className="p-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-      >
-        {SUPPORTED_LANGUAGES.map((lang) => (
-          <option key={lang} value={lang}>
+      {label && (
+        <label htmlFor={id} className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          {label}
+        </label>
+      )}
+      <div className="flex flex-wrap gap-1">
+        {languageList.map((lang) => (
+          <button
+            key={lang}
+            onClick={() => !disabled && onChange(lang)}
+            disabled={disabled || lang === value}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              lang === value
+                ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+            }`}
+          >
             {LANGUAGE_NAMES[lang]}
-          </option>
+          </button>
         ))}
-      </select>
+      </div>
     </div>
   );
 }

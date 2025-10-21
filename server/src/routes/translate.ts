@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { config } from '../config/env';
 import { Cache } from '../utils/cache';
 import { splitSentences } from '../utils/splitSentences';
-import { translateBatch, translateBatchWithGlossary } from '../services/googleTranslate';
+import { translateBatch } from '../services/translator';
 
 const router = Router();
 
@@ -12,14 +12,16 @@ const router = Router();
 const translationCache = new Cache<string>(config.CACHE_TTL_SECONDS);
 
 // Supported languages
-const LANGUAGES = ['vi', 'en', 'ja'] as const;
+const LANGUAGES = ['auto', 'vi', 'en', 'ja'] as const;
 type Language = (typeof LANGUAGES)[number];
 
 // Request validation schema
 const translateSchema = z.object({
   text: z.string().min(1),
   sourceLang: z.enum(LANGUAGES),
-  targetLang: z.enum(LANGUAGES),
+  targetLang: z.enum(LANGUAGES).refine((lang) => lang !== 'auto', {
+    message: "Target language cannot be 'auto'",
+  }),
 });
 
 router.post('/translate', async (req: Request, res: Response) => {
@@ -31,8 +33,8 @@ router.post('/translate', async (req: Request, res: Response) => {
 
   const { text, sourceLang, targetLang } = result.data;
 
-  // Prevent same language translation
-  if (sourceLang === targetLang) {
+  // Prevent same non-auto language translation
+  if (sourceLang === targetLang && sourceLang !== ('auto' as Language)) {
     return res.status(400).send({ error: 'Source and target languages must be different' });
   }
 
@@ -42,7 +44,12 @@ router.post('/translate', async (req: Request, res: Response) => {
   // Check cache
   const cached = translationCache.get(cacheKey);
   if (cached) {
-    return res.send({ translatedText: cached, cached: true });
+    const [translatedText, detectedLanguage] = cached.split('|');
+    return res.send({
+      translatedText,
+      cached: true,
+      ...(detectedLanguage && { detectedLanguage: JSON.parse(detectedLanguage) }),
+    });
   }
 
   try {
@@ -50,25 +57,25 @@ router.post('/translate', async (req: Request, res: Response) => {
     const sentences = splitSentences(text);
 
     // Translate sentences
-    const translatedSentences = await (config.USE_GLOSSARY
-      ? translateBatchWithGlossary({
-          contents: sentences,
-          sourceLang,
-          targetLang,
-        })
-      : translateBatch({
-          contents: sentences,
-          sourceLang,
-          targetLang,
-        }));
+    const translatedSentences = await translateBatch({
+      contents: sentences,
+      sourceLang,
+      targetLang,
+    });
 
     // Join sentences back together
-    const translatedText = translatedSentences.join('');
+    const translatedText = translatedSentences.map((s) => s.text).join('');
+    const detectedLanguage = translatedSentences[0]?.detectedLanguage;
 
     // Cache the result
-    translationCache.set(cacheKey, translatedText);
+    const cacheValue = detectedLanguage ? `${translatedText}|${JSON.stringify(detectedLanguage)}` : translatedText;
+    translationCache.set(cacheKey, cacheValue);
 
-    res.send({ translatedText, cached: false });
+    res.send({
+      translatedText,
+      cached: false,
+      ...(detectedLanguage && { detectedLanguage }),
+    });
   } catch (error) {
     console.error('Translation error:', error);
     res.status(500).send({ error: 'Translation failed' });

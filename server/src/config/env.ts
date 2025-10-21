@@ -4,13 +4,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const envSchema = z.object({
-  GCLOUD_PROJECT_ID: z.string(),
-  GOOGLE_APPLICATION_CREDENTIALS: z.string(),
+  AZURE_TRANSLATOR_KEY: z.string().min(1),
+  AZURE_TRANSLATOR_REGION: z.string().min(1),
   PORT: z.string().transform(Number),
   CORS_ALLOW_ORIGIN: z.string(),
   CACHE_TTL_SECONDS: z.string().transform(Number),
-  USE_GLOSSARY: z.string().transform((val) => val === 'true'),
-  GLOSSARY_ID: z.string().optional(),
 });
 
 const env = envSchema.safeParse(process.env);
