@@ -68,7 +68,7 @@ cp server/.env.example server/.env
 # Add to server/.env:
 AZURE_TRANSLATOR_KEY=your_api_key
 AZURE_TRANSLATOR_REGION=your_region
-PORT=3001
+PORT=4000
 CORS_ALLOW_ORIGIN=http://localhost:3000
 CACHE_TTL_SECONDS=3600
 

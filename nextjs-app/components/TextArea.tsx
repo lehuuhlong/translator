@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef, useEffect, useState } from 'react';
+
 interface TextAreaProps {
   value: string;
   onChange: (text: string) => void;
@@ -9,20 +11,32 @@ interface TextAreaProps {
 }
 
 export function TextArea({ value, onChange, readOnly, placeholder, id }: TextAreaProps) {
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const charCount = value.length;
   const showCount = !readOnly;
+
+  useEffect(() => {
+    const textarea = textAreaRef.current;
+    if (textarea) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = 'auto';
+      // Set new height based on scrollHeight
+      textarea.style.height = `${Math.max(textarea.scrollHeight, 200)}px`;
+    }
+  }, [value]);
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 relative">
         <textarea
+          ref={textAreaRef}
           id={id}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           readOnly={readOnly}
           placeholder={placeholder}
           maxLength={5000}
-          className="w-full h-[200px] px-4 pr-16 py-4 resize-none bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white text-2xl placeholder:text-gray-400 dark:placeholder:text-gray-600"
+          className="w-full min-h-[200px] px-4 pr-16 py-4 resize-none overflow-hidden bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white text-lg placeholder:text-gray-400 dark:placeholder:text-gray-600"
         />
         {showCount && (
           <div className="absolute bottom-4 right-4">
