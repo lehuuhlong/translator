@@ -1,12 +1,12 @@
-# Secure Multi-Language Translator
+# Multi-Language Translator
 
-A secure, production-ready translator application supporting Vietnamese, English, and Japanese translations using Google Cloud Translation API v3.
+A modern web-based translation application built with Next.js and Express, featuring real-time translation using Azure Translator API.
 
 ```
 +----------------+     +------------------+     +----------------------+
 |                |     |                  |     |                      |
-|   Next.js UI   | --> |  Express Server  | --> |  Google Translation  |
-|  (TypeScript)  |     |   (TypeScript)   |     |        API v3       |
+|   Next.js UI   | --> |  Express Server  | --> |   Azure Translator  |
+|  (TypeScript)  |     |   (TypeScript)   |     |        API         |
 |                |     |                  |     |                      |
 +----------------+     +------------------+     +----------------------+
                              |
@@ -22,72 +22,79 @@ A secure, production-ready translator application supporting Vietnamese, English
 ## Features
 
 - 🌐 Supports Vietnamese (vi), English (en), and Japanese (ja)
-- 🔒 Secure design: no API keys exposed client-side
+- � Automatic language detection
+- ⚡ Real-time translation with debouncing
+- 🎨 Clean, modern UI inspired by Google Translate
+- 🌙 Dark mode support
+- � Secure design with server-side API key handling
+- 💾 In-memory caching for better performance
+- 📝 Character count and input validation
+- 🔄 Language swap functionality
+- 🗑️ Clear text functionality
+- � Copy translation to clipboard
 - 🚀 Rate limiting and CORS protection
-- 💾 In-memory caching with Redis support
-- 📝 Batch translation for multi-sentence input
-- 📚 Optional glossary support
 - 🐳 Docker and Docker Compose support
 - ✅ TypeScript throughout
-- 🧪 Unit tests included
+
+## Tech Stack
+
+- **Frontend**:
+  - Next.js 14
+  - React 18
+  - TailwindCSS
+  - TypeScript
+
+- **Backend**:
+  - Express
+  - TypeScript
+  - Azure Translator API
+  - Memory Cache
 
 ## Prerequisites
 
 1. Node.js 18+ and pnpm
-2. Google Cloud project with Translation API v3 enabled
-3. Service Account with Translation API access
+2. Azure account with Translator API access
+3. Azure Translator API key and region
 
-## Setup
+## Environment Setup
 
 1. Clone the repository
 2. Set up environment variables:
 
-   ```bash
-   # Server
-   cp server/.env.example server/.env
-   # Edit server/.env with your project details
+```bash
+# Server
+cp server/.env.example server/.env
 
-   # Frontend
-   cp nextjs-app/.env.local.example nextjs-app/.env.local
-   ```
+# Add to server/.env:
+AZURE_TRANSLATOR_KEY=your_api_key
+AZURE_TRANSLATOR_REGION=your_region
+PORT=3001
+CORS_ALLOW_ORIGIN=http://localhost:3000
+CACHE_TTL_SECONDS=3600
 
-3. Create service account key:
-   
-   ```bash
-   # In Google Cloud Console:
-   # 1. IAM & Admin > Service Accounts > Create Service Account
-   # 2. Grant "Cloud Translation API User" role
-   # 3. Create JSON key
-   # 4. Save as server/keys/service_account.json
-   ```
-
-4. Install dependencies:
-
-   ```bash
-   # Server
-   cd server
-   pnpm install
-
-   # Frontend
-   cd ../nextjs-app
-   pnpm install
-   ```
+# Frontend
+cp nextjs-app/.env.example nextjs-app/.env.local
+```
 
 ## Running Locally
 
-1. Start the server:
-   ```bash
-   cd server
-   pnpm dev
-   ```
+1. Install dependencies and start the server:
+
+```bash
+cd server
+pnpm install
+pnpm dev
+```
 
 2. In another terminal, start the frontend:
-   ```bash
-   cd nextjs-app
-   pnpm dev
-   ```
 
-3. Visit http://localhost:3000
+```bash
+cd nextjs-app
+pnpm install
+pnpm dev
+```
+
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Running with Docker Compose
 
@@ -95,50 +102,76 @@ A secure, production-ready translator application supporting Vietnamese, English
 docker-compose up --build
 ```
 
-## Optional: Setting up a Glossary
+## Project Structure
 
-1. Create a CSV file at `server/keys/glossary.csv`:
-   ```csv
-   source,target
-   example,例
-   test,テスト
-   ```
+```plaintext
+.
+├── nextjs-app/                # Frontend application
+│   ├── app/                   # Next.js app directory
+│   │   ├── layout.tsx        # Root layout
+│   │   └── page.tsx          # Main translation page
+│   ├── components/           # React components
+│   │   ├── LanguageSelector.tsx
+│   │   └── TextArea.tsx
+│   └── lib/                  # Shared utilities
+│       ├── api.ts           # API client
+│       ├── hooks.ts         # Custom React hooks
+│       └── validators.ts    # Type definitions & validators
+│
+└── server/                    # Backend application
+    ├── src/
+    │   ├── config/          # Configuration
+    │   ├── middlewares/     # Express middlewares
+    │   ├── routes/          # API routes
+    │   ├── services/        # Business logic
+    │   └── utils/           # Utilities
+    └── Dockerfile
 
-2. Create the glossary in Google Cloud:
-   ```bash
-   gcloud translate glossaries create my-glossary \
-     --languages=en,ja \
-     --data-format=csv \
-     --data-store-path=./server/keys/glossary.csv
-   ```
+## API Endpoints
 
-3. Enable glossary in `server/.env`:
-   ```
-   USE_GLOSSARY=true
-   GLOSSARY_ID=projects/your-project-id/locations/global/glossaries/my-glossary
-   ```
+### POST /api/translate
+Translates text between supported languages.
 
-## Security Notes
+**Request Body:**
 
-- API keys and credentials stay server-side
-- CORS limits requests to configured origin
-- Rate limiting prevents abuse
+```json
+{
+  "text": "string",
+  "sourceLang": "auto" | "vi" | "en" | "ja",
+  "targetLang": "vi" | "en" | "ja"
+}
+```
+
+**Response:**
+
+```json
+{
+  "translatedText": "string",
+  "detectedLanguage": {
+    "language": "string",
+    "score": "number"
+  },
+  "cached": "boolean"
+}
+```
+
+## Security Features
+
+- Azure API keys securely stored server-side
+- CORS protection with configurable origin
+- Rate limiting to prevent abuse
 - Input validation on both client and server
-- Error messages don't leak implementation details in production
+- Error handling with safe error messages
 
-## Troubleshooting
+## Error Handling
 
-1. 403 Errors
-   - Check service account permissions
-   - Verify key file path in GOOGLE_APPLICATION_CREDENTIALS
+The application includes comprehensive error handling:
 
-2. Network Issues
-   - Confirm CORS_ALLOW_ORIGIN matches frontend URL
-   - Check if corporate firewall blocks Google APIs
-
-3. Translation Failed
-   - Verify Google Cloud project has billing enabled
-   - Check API quotas in Google Cloud Console
+- Invalid language pairs
+- API rate limits
+- Network errors
+- Input validation
+- Server errors
 
 ## License
 
