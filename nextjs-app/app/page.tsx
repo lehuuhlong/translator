@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Language, LANGUAGE_NAMES, getNextAvailableLanguage } from '../lib/validators';
+import { Language } from '../lib/validators';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { translate } from '../lib/api';
 import { LanguageSelector } from '../components/LanguageSelector';
