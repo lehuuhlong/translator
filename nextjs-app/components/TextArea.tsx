@@ -22,7 +22,7 @@ export function TextArea({ value, onChange, readOnly, placeholder, id }: TextAre
           readOnly={readOnly}
           placeholder={placeholder}
           maxLength={5000}
-          className="w-full h-[200px] px-4 pr-16 py-4 resize-none bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white text-lg placeholder:text-gray-400 dark:placeholder:text-gray-600"
+          className="w-full h-[200px] px-4 pr-16 py-4 resize-none bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white text-2xl placeholder:text-gray-400 dark:placeholder:text-gray-600"
         />
         {showCount && (
           <div className="absolute bottom-4 right-4">

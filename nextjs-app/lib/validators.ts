@@ -8,6 +8,19 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   vi: 'Vietnamese',
 };
 
+export function getNextAvailableLanguage(currentLang: Language, selectedLang: Language, sourceLang?: Language): Language {
+  // Don't change if selecting 'auto' for source
+  if (selectedLang === 'auto') return selectedLang;
+
+  // If languages would be the same, pick the next available one
+  if (currentLang === selectedLang || selectedLang === sourceLang) {
+    const availableLangs = SUPPORTED_LANGUAGES.filter((lang) => lang !== 'auto' && lang !== sourceLang && lang !== currentLang);
+    return availableLangs[0] || currentLang;
+  }
+
+  return selectedLang;
+}
+
 export function isValidLanguage(lang: string): lang is Language {
   return SUPPORTED_LANGUAGES.includes(lang as Language);
 }

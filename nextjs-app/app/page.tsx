@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Language, LANGUAGE_NAMES } from '../lib/validators';
+import { Language, LANGUAGE_NAMES, getNextAvailableLanguage } from '../lib/validators';
 import { translate } from '../lib/api';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TextArea } from '../components/TextArea';
@@ -12,6 +12,22 @@ export default function Home() {
   const [targetLang, setTargetLang] = useState<Language>('vi');
   const [sourceText, setSourceText] = useState('');
   const debouncedText = useDebounce(sourceText, 500); // 0.5 second delay
+
+  const handleSourceLanguageChange = (lang: Language) => {
+    setSourceLang(lang);
+    // If source language matches target, swap target to previous source
+    if (lang === targetLang && lang !== 'auto') {
+      setTargetLang(sourceLang === 'auto' ? 'en' : sourceLang);
+    }
+  };
+
+  const handleTargetLanguageChange = (lang: Language) => {
+    setTargetLang(lang);
+    // If target language matches source, swap source to previous target
+    if (sourceLang === lang && sourceLang !== 'auto') {
+      setSourceLang(targetLang);
+    }
+  };
   const [translation, setTranslation] = useState('');
   const [isCached, setIsCached] = useState(false);
   const [error, setError] = useState('');
@@ -82,7 +98,7 @@ export default function Home() {
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
           <div className="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] gap-4 items-center px-4 py-3 border-b border-gray-200 dark:border-gray-800">
             <div>
-              <LanguageSelector id="source-lang" label="" value={sourceLang} onChange={setSourceLang} disabled={isLoading} />
+              <LanguageSelector id="source-lang" label="" value={sourceLang} onChange={handleSourceLanguageChange} disabled={isLoading} />
             </div>
 
             <div className="flex justify-center">
@@ -103,7 +119,7 @@ export default function Home() {
             </div>
 
             <div>
-              <LanguageSelector id="target-lang" label="" value={targetLang} onChange={setTargetLang} disabled={isLoading} />
+              <LanguageSelector id="target-lang" label="" value={targetLang} onChange={handleTargetLanguageChange} disabled={isLoading} />
             </div>
           </div>
 
