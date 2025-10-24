@@ -15,7 +15,7 @@ export default function Home() {
   const [targetLang, setTargetLang] = useState<Language>('vi');
   const [sourceText, setSourceText] = useState('');
   const [showCopyToast, setShowCopyToast] = useState(false);
-  const debouncedText = useDebounce(sourceText, 500); // 0.5 second delay
+  const debouncedText = useDebounce(sourceText, 1000); // 0.5 second delay
   const { history, addToHistory, selectFromHistory, getTimeAgo, findExistingTranslation } = useTranslationHistory();
 
   const handleSourceLanguageChange = (lang: Language) => {
