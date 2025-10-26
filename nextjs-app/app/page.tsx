@@ -15,7 +15,8 @@ export default function Home() {
   const [targetLang, setTargetLang] = useState<Language>('vi');
   const [sourceText, setSourceText] = useState('');
   const [showCopyToast, setShowCopyToast] = useState(false);
-  const debouncedText = useDebounce(sourceText, 1000); // 0.5 second delay
+  const [isTranslating, setIsTranslating] = useState(false);
+  const debouncedText = useDebounce(sourceText, 1000); // 1 second delay
   const { history, addToHistory, selectFromHistory, getTimeAgo, findExistingTranslation } = useTranslationHistory();
 
   const handleSourceLanguageChange = (lang: Language) => {
@@ -41,6 +42,9 @@ export default function Home() {
 
   useEffect(() => {
     const handleTranslate = async () => {
+      // Nếu đang trong quá trình translate trước đó, bỏ qua
+      if (isTranslating) return;
+
       // Clear translation if input is empty
       if (!debouncedText.trim()) {
         setTranslation('');
@@ -63,28 +67,36 @@ export default function Home() {
 
       setError('');
       setIsLoading(true);
+      setIsTranslating(true);
 
       try {
-        const result = await translate(debouncedText, sourceLang, targetLang);
-        setTranslation(result.translatedText);
-        setIsCached(result.cached);
-        if (result.detectedLanguage) {
-          setDetectedLang(result.detectedLanguage.language);
-        }
-        // Add successful translation to history only if it's not already there
-        if (!existingTranslation) {
-          addToHistory({
-            sourceText: debouncedText,
-            translatedText: result.translatedText,
-            sourceLang: result.detectedLanguage?.language || sourceLang,
-            targetLang,
-          });
+        // Lưu lại text hiện tại để so sánh sau khi translate xong
+        const currentText = debouncedText;
+        const result = await translate(currentText, sourceLang, targetLang);
+
+        // Chỉ cập nhật kết quả nếu input hiện tại vẫn giống với input khi bắt đầu translate
+        if (currentText === debouncedText) {
+          setTranslation(result.translatedText);
+          setIsCached(result.cached);
+          if (result.detectedLanguage) {
+            setDetectedLang(result.detectedLanguage.language);
+          }
+          // Add successful translation to history only if it's not already there
+          if (!existingTranslation) {
+            addToHistory({
+              sourceText: currentText,
+              translatedText: result.translatedText,
+              sourceLang: result.detectedLanguage?.language || sourceLang,
+              targetLang,
+            });
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Translation failed');
         setTranslation('');
       } finally {
         setIsLoading(false);
+        setIsTranslating(false);
       }
     };
 
@@ -157,7 +169,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-800">
             <div className="relative">
-              <TextArea id="source-text" value={sourceText} onChange={setSourceText} placeholder="Enter text" readOnly={isLoading} />
+              <TextArea id="source-text" value={sourceText} onChange={setSourceText} placeholder="Enter text" />
               {sourceText && (
                 <button
                   onClick={() => {
