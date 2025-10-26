@@ -44,11 +44,10 @@ router.post('/translate', async (req: Request, res: Response) => {
   // Check cache
   const cached = translationCache.get(cacheKey);
   if (cached) {
-    const [translatedText, detectedLanguage] = cached.split('|');
+    const cachedData = JSON.parse(cached);
     return res.send({
-      translatedText,
+      ...cachedData,
       cached: true,
-      ...(detectedLanguage && { detectedLanguage: JSON.parse(detectedLanguage) }),
     });
   }
 
@@ -63,18 +62,27 @@ router.post('/translate', async (req: Request, res: Response) => {
       targetLang,
     });
 
-    // Join sentences back together
+    // Join sentences back together and collect romaji
     const translatedText = translatedSentences.map((s) => s.text).join('');
     const detectedLanguage = translatedSentences[0]?.detectedLanguage;
+    const sourceRomaji = translatedSentences[0]?.sourceRomaji;
+    const targetRomaji = translatedSentences[0]?.targetRomaji;
 
-    // Cache the result
-    const cacheValue = detectedLanguage ? `${translatedText}|${JSON.stringify(detectedLanguage)}` : translatedText;
+    // Cache the result with romaji
+    const cacheValue = JSON.stringify({
+      translatedText,
+      detectedLanguage,
+      sourceRomaji,
+      targetRomaji,
+    });
     translationCache.set(cacheKey, cacheValue);
 
     res.send({
       translatedText,
       cached: false,
       ...(detectedLanguage && { detectedLanguage }),
+      ...(sourceRomaji && { sourceRomaji }),
+      ...(targetRomaji && { targetRomaji }),
     });
   } catch (error) {
     console.error('Translation error:', error);

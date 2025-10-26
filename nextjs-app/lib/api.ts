@@ -8,6 +8,8 @@ interface TranslateResponse {
     language: Language;
     confidence: number;
   };
+  sourceRomaji?: string;
+  targetRomaji?: string;
 }
 
 interface TranslateError {

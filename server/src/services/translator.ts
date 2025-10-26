@@ -1,4 +1,5 @@
 import { config } from '../config/env';
+import { convertToRomaji, isJapaneseText } from './romaji';
 
 export interface TranslateRequest {
   contents: string[];
@@ -23,6 +24,8 @@ export interface TranslationResult {
     language: string;
     confidence: number;
   };
+  sourceRomaji?: string;
+  targetRomaji?: string;
 }
 
 export async function translateBatch({ contents, sourceLang, targetLang }: TranslateRequest): Promise<TranslationResult[]> {
@@ -46,13 +49,32 @@ export async function translateBatch({ contents, sourceLang, targetLang }: Trans
   }
 
   const data: TranslateResponse[] = await response.json();
-  return data.map((item) => ({
-    text: item.translations[0].text,
-    ...(item.detectedLanguage && {
-      detectedLanguage: {
-        language: item.detectedLanguage.language,
-        confidence: item.detectedLanguage.score,
-      },
-    }),
-  }));
+
+  const results = await Promise.all(
+    data.map(async (item, index) => {
+      const sourceText = contents[index];
+      const translatedText = item.translations[0].text;
+      const detectedLang = item.detectedLanguage?.language || sourceLang;
+
+      // Handle romaji conversions
+      const sourceRomaji =
+        (detectedLang === 'ja' || sourceLang === 'ja') && (await isJapaneseText(sourceText)) ? await convertToRomaji(sourceText) : undefined;
+
+      const targetRomaji = targetLang === 'ja' && (await isJapaneseText(translatedText)) ? await convertToRomaji(translatedText) : undefined;
+
+      return {
+        text: translatedText,
+        ...(item.detectedLanguage && {
+          detectedLanguage: {
+            language: detectedLang,
+            confidence: item.detectedLanguage.score,
+          },
+        }),
+        ...(sourceRomaji && { sourceRomaji }),
+        ...(targetRomaji && { targetRomaji }),
+      };
+    })
+  );
+
+  return results;
 }

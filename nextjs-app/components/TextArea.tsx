@@ -9,9 +9,11 @@ interface TextAreaProps {
   readOnly?: boolean;
   placeholder?: string;
   id: string;
+  romaji?: string;
+  showRomaji?: boolean;
 }
 
-const TextAreaComponent = ({ value, onChange, readOnly, placeholder, id }: TextAreaProps) => {
+const TextAreaComponent = ({ value, onChange, readOnly, placeholder, id, romaji, showRomaji }: TextAreaProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const charCount = value.length;
   const showCount = !readOnly;
@@ -58,6 +60,11 @@ const TextAreaComponent = ({ value, onChange, readOnly, placeholder, id }: TextA
           </div>
         )}
       </div>
+      {showRomaji && romaji && (
+        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-800">
+          <p className="text-sm text-gray-500 dark:text-gray-400">{romaji}</p>
+        </div>
+      )}
     </div>
   );
 };

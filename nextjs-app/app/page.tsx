@@ -39,6 +39,8 @@ export default function Home() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [detectedLang, setDetectedLang] = useState<Language | null>(null);
+  const [sourceRomaji, setSourceRomaji] = useState<string>('');
+  const [targetRomaji, setTargetRomaji] = useState<string>('');
 
   useEffect(() => {
     const handleTranslate = async () => {
@@ -81,6 +83,8 @@ export default function Home() {
           if (result.detectedLanguage) {
             setDetectedLang(result.detectedLanguage.language);
           }
+          setSourceRomaji(result.sourceRomaji || '');
+          setTargetRomaji(result.targetRomaji || '');
           // Add successful translation to history only if it's not already there
           if (!existingTranslation) {
             addToHistory({
@@ -169,13 +173,22 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-800">
             <div className="relative">
-              <TextArea id="source-text" value={sourceText} onChange={setSourceText} placeholder="Enter text" />
+              <TextArea
+                id="source-text"
+                value={sourceText}
+                onChange={setSourceText}
+                placeholder="Enter text"
+                romaji={sourceRomaji}
+                showRomaji={(detectedLang === 'ja' || sourceLang === 'ja') && !!sourceRomaji}
+              />
               {sourceText && (
                 <button
                   onClick={() => {
                     setSourceText('');
                     setTranslation('');
                     setDetectedLang(null);
+                    setSourceRomaji('');
+                    setTargetRomaji('');
                   }}
                   className="absolute top-4 right-4 p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
@@ -186,7 +199,15 @@ export default function Home() {
               )}
             </div>
             <div className="relative">
-              <TextArea id="translation" value={translation} onChange={() => {}} readOnly placeholder="Translation" />
+              <TextArea
+                id="translation"
+                value={translation}
+                onChange={() => {}}
+                readOnly
+                placeholder="Translation"
+                romaji={targetRomaji}
+                showRomaji={targetLang === 'ja' && !!targetRomaji}
+              />
               <div className="absolute top-4 right-4 flex gap-2">
                 {isLoading && (
                   <div className="p-1.5 text-blue-500">
@@ -239,6 +260,8 @@ export default function Home() {
                 setTargetLang(selectedItem.targetLang);
                 setTranslation(selectedItem.translatedText);
                 setDetectedLang(selectedItem.sourceLang);
+                setSourceRomaji('');
+                setTargetRomaji('');
               }
             }}
           />

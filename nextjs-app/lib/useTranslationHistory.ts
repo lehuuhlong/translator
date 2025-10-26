@@ -8,6 +8,8 @@ export interface TranslationHistoryItem {
   sourceLang: Language;
   targetLang: Language;
   timestamp: number;
+  sourceRomaji?: string;
+  targetRomaji?: string;
 }
 
 const STORAGE_KEY = 'translation_history';
