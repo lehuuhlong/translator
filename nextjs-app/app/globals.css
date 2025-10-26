@@ -18,3 +18,55 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
 }
+
+/* ===== Scrollbar gọn gàng cho khu vực lịch sử dịch ===== */
+.custom-scrollbar {
+  /* Giữ bố cục ổn định khi scrollbar xuất hiện */
+  scrollbar-gutter: stable both-edges;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120,120,120,0.45) transparent;
+
+  /* Hạn chế quán tính, tránh giật nội dung khi cuộn nhanh */
+  overscroll-behavior: contain;
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;   /* gọn, tinh tế */
+  height: 6px;  /* nếu có cuộn ngang */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 4px; /* chừa khoảng ở đầu/cuối cho thanh cuộn đỡ “cục” */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(120,120,120,0.45);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(120,120,120,0.75);
+}
+
+/* Tông màu nhẹ hơn khi dark mode (nếu app có dark class ở html/body) */
+.dark .custom-scrollbar {
+  scrollbar-color: rgba(180,180,180,0.35) transparent;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(180,180,180,0.35);
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(180,180,180,0.6);
+}
+
+/* Tôn trọng người dùng ưa ít chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  .custom-scrollbar {
+    scroll-behavior: auto;
+  }
+}
+

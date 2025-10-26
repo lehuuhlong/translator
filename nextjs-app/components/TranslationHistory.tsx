@@ -14,7 +14,7 @@ export const TranslationHistory = memo(function TranslationHistory({ history, ge
   }
 
   return (
-    <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-800 overflow-y-auto max-h-[calc(100vh-31rem)]">
+    <div className="custom-scrollbar flex flex-col divide-y divide-gray-200 dark:divide-gray-800 overflow-y-auto max-h-[calc(100vh-31rem)]">
       {history.map((item) => (
         <button key={item.id} onClick={() => onSelect(item)} className="p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
           <div className="flex justify-between items-start mb-2">
