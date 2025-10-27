@@ -7,8 +7,6 @@ import { translate } from '../lib/api';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TextArea } from '../components/TextArea';
 import { useDebounce } from '../lib/hooks';
-import { useTranslationHistory } from '../lib/useTranslationHistory';
-import { TranslationHistory } from '../components/TranslationHistory';
 
 export default function Home() {
   const [sourceLang, setSourceLang] = useState<Language>('auto');
@@ -17,7 +15,6 @@ export default function Home() {
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const debouncedText = useDebounce(sourceText, 1000); // 1 second delay
-  const { history, addToHistory, selectFromHistory, getTimeAgo, findExistingTranslation } = useTranslationHistory();
 
   const handleSourceLanguageChange = (lang: Language) => {
     setSourceLang(lang);
@@ -54,19 +51,6 @@ export default function Home() {
         return;
       }
 
-      // Check if translation exists in history
-      const existingTranslation = findExistingTranslation(debouncedText, sourceLang, targetLang);
-      if (existingTranslation) {
-        // Use existing translation and move it to top of history
-        const selectedItem = selectFromHistory(existingTranslation.id);
-        if (selectedItem) {
-          setTranslation(selectedItem.translatedText);
-          setIsCached(true);
-          setDetectedLang(selectedItem.sourceLang);
-          return;
-        }
-      }
-
       setError('');
       setIsLoading(true);
       setIsTranslating(true);
@@ -85,15 +69,6 @@ export default function Home() {
           }
           setSourceRomaji(result.sourceRomaji || '');
           setTargetRomaji(result.targetRomaji || '');
-          // Add successful translation to history only if it's not already there
-          if (!existingTranslation) {
-            addToHistory({
-              sourceText: currentText,
-              translatedText: result.translatedText,
-              sourceLang: result.detectedLanguage?.language || sourceLang,
-              targetLang,
-            });
-          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Translation failed');
@@ -243,29 +218,6 @@ export default function Home() {
         </div>
 
         {error && <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg text-center">{error}</div>}
-
-        {/* Translation History */}
-        <div className="mt-6 bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Translation History</h2>
-          </div>
-          <TranslationHistory
-            history={history}
-            getTimeAgo={getTimeAgo}
-            onSelect={(item) => {
-              const selectedItem = selectFromHistory(item.id);
-              if (selectedItem) {
-                setSourceText(selectedItem.sourceText);
-                setSourceLang(selectedItem.sourceLang);
-                setTargetLang(selectedItem.targetLang);
-                setTranslation(selectedItem.translatedText);
-                setDetectedLang(selectedItem.sourceLang);
-                setSourceRomaji('');
-                setTargetRomaji('');
-              }
-            }}
-          />
-        </div>
 
         {/* Copy Toast Notification */}
         <div
