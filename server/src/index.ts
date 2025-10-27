@@ -15,6 +15,8 @@ app.use(
     methods: ['GET', 'POST'],
   })
 );
+
+app.set('trust proxy', true);
 app.use(rateLimiter);
 
 // Routes

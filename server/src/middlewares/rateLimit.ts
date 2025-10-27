@@ -1,4 +1,3 @@
-import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 
 // Rate limit: 120 requests per minute per IP
