@@ -1,5 +1,5 @@
 import { config } from '../config/env';
-import { convertToRomaji, isJapaneseText } from './romaji';
+// import { convertToRomaji, isJapaneseText } from './romaji';
 
 export interface TranslateRequest {
   contents: string[];
@@ -57,10 +57,10 @@ export async function translateBatch({ contents, sourceLang, targetLang }: Trans
       const detectedLang = item.detectedLanguage?.language || sourceLang;
 
       // Handle romaji conversions
-      const sourceRomaji =
-        (detectedLang === 'ja' || sourceLang === 'ja') && (await isJapaneseText(sourceText)) ? await convertToRomaji(sourceText) : undefined;
+      // const sourceRomaji =
+      //   (detectedLang === 'ja' || sourceLang === 'ja') && (await isJapaneseText(sourceText)) ? await convertToRomaji(sourceText) : undefined;
 
-      const targetRomaji = targetLang === 'ja' && (await isJapaneseText(translatedText)) ? await convertToRomaji(translatedText) : undefined;
+      // const targetRomaji = targetLang === 'ja' && (await isJapaneseText(translatedText)) ? await convertToRomaji(translatedText) : undefined;
 
       return {
         text: translatedText,
@@ -70,8 +70,8 @@ export async function translateBatch({ contents, sourceLang, targetLang }: Trans
             confidence: item.detectedLanguage.score,
           },
         }),
-        ...(sourceRomaji && { sourceRomaji }),
-        ...(targetRomaji && { targetRomaji }),
+        // ...(sourceRomaji && { sourceRomaji }),
+        // ...(targetRomaji && { targetRomaji }),
       };
     })
   );

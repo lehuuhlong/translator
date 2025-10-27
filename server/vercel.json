@@ -1,8 +1,0 @@
-{
-  "functions": {
-    "api/**/*.js": { "includeFiles": "node_modules/**/kuromoji/dict/**" },
-    "api/**/*.ts": { "includeFiles": "node_modules/**/kuromoji/dict/**" },
-    "app/api/**/route.js": { "includeFiles": "node_modules/**/kuromoji/dict/**" },
-    "app/api/**/route.ts": { "includeFiles": "node_modules/**/kuromoji/dict/**" }
-  }
-}
